@@ -113,4 +113,22 @@ class BlogManagerTest {
             assertThat(e.getMessage(), equalTo(DomainError.USER_NOT_CONFIRMED));
         }
     }
+
+    @Test
+    void shouldThrowDomainErrorWhenAddingLikeToPostByUserWithStatusRemoved() {
+        User newUser = new User();
+        Long newUserId = 1L;
+        newUser.setId(newUserId);
+        newUser.setAccountStatus(AccountStatus.REMOVED);
+
+        when(userRepository.findById(newUserId)).thenReturn(Optional.of(newUser));
+        try {
+
+            blogService.addLikeToPost(newUserId, sampleBlogPost.getId());
+
+            fail("Should throw DomainError");
+        } catch (DomainError e) {
+            assertThat(e.getMessage(), equalTo(DomainError.USER_NOT_CONFIRMED));
+        }
+    }
 }
