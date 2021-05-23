@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -25,9 +26,6 @@ public class LikePostRepositoryTest {
     
     @Autowired
     private LikePostRepository likePostRepository;
-
-    @Autowired
-    private BlogPostRepository blogPostRepository;
     
     private User sampleUser;
     
@@ -126,6 +124,23 @@ public class LikePostRepositoryTest {
         entityManager.refresh(persistedLikePost);
         assertThat(persistedLikePost.getPost().getId(), equalTo(blogPostToUpdateWith.getId()));
         assertThat(persistedLikePost.getPost().getEntry(), equalTo(blogPostEntry));
+    }
+
+    @Test
+    void shouldFindLikePostByUserAndPost() {
+        entityManager.persistAndFlush(sampleUser);
+        entityManager.persistAndFlush(sampleBlogPost);
+        LikePost persistedLikePost = new LikePost();
+        persistedLikePost.setUser(sampleUser);
+        persistedLikePost.setPost(sampleBlogPost);
+        entityManager.persistAndFlush(persistedLikePost);
+
+        Optional<LikePost> optionalLikePost = likePostRepository.findByUserAndPost(sampleUser, sampleBlogPost);
+
+        assertThat(optionalLikePost.isPresent(), equalTo(true));
+        LikePost likePost = optionalLikePost.get();
+        assertThat(likePost.getPost().getId(), equalTo(sampleBlogPost.getId()));
+        assertThat(likePost.getUser().getId(), equalTo(sampleUser.getId()));
     }
     
 }
