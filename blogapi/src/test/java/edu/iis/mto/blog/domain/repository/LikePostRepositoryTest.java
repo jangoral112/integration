@@ -46,9 +46,8 @@ public class LikePostRepositoryTest {
 
     @Test
     void shouldSaveLikePost() {
-        entityManager.persist(sampleUser);
-        entityManager.persist(sampleBlogPost);
-        entityManager.flush();
+        entityManager.persistAndFlush(sampleUser);
+        entityManager.persistAndFlush(sampleBlogPost);
 
         LikePost likePost = new LikePost();
         likePost.setUser(sampleUser);
@@ -60,9 +59,8 @@ public class LikePostRepositoryTest {
 
     @Test
     void shouldAddSavedLikePostToLikesInBlogPost() {
-        entityManager.persist(sampleUser);
-        entityManager.persist(sampleBlogPost);
-        entityManager.flush();
+        entityManager.persistAndFlush(sampleUser);
+        entityManager.persistAndFlush(sampleBlogPost);
         
         LikePost likePost = new LikePost();
         likePost.setUser(sampleUser);
@@ -72,6 +70,34 @@ public class LikePostRepositoryTest {
         entityManager.refresh(sampleBlogPost);
         assertThat(sampleBlogPost.getLikesCount(), equalTo(1));
         assertThat(sampleBlogPost.getLikes().get(0), equalTo(persistedLikePost));
+    }
+
+    @Test
+    void shouldModifyUserInLikePost() {
+        entityManager.persistAndFlush(sampleUser);
+        entityManager.persistAndFlush(sampleBlogPost);
+        LikePost persistedLikePost = new LikePost();
+        persistedLikePost.setUser(sampleUser);
+        persistedLikePost.setPost(sampleBlogPost);
+        entityManager.persistAndFlush(persistedLikePost);
+
+        User userToUpdateWith = new User();
+        userToUpdateWith.setAccountStatus(AccountStatus.CONFIRMED);
+        String userMail = "newUser@mail.com";
+        userToUpdateWith.setEmail(userMail);
+        entityManager.persistAndFlush(userToUpdateWith);
+
+        LikePost likePost = new LikePost();
+        likePost.setId(persistedLikePost.getId());
+        likePost.setPost(sampleBlogPost);
+        likePost.setUser(userToUpdateWith);
+        likePostRepository.save(likePost);
+
+        entityManager.flush();
+
+        entityManager.refresh(persistedLikePost);
+        assertThat(persistedLikePost.getUser().getId(), equalTo(userToUpdateWith.getId()));
+        assertThat(persistedLikePost.getUser().getEmail(), equalTo(userMail));
     }
     
 }
