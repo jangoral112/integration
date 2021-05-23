@@ -51,4 +51,18 @@ class CreateUserTest extends FunctionalTests {
                 .when()
                 .get(USER_API + "/{id}");
     }
+
+    @Test
+    void createUserWithRepeatedEmailShouldReturnConflictStatus() {
+        JSONObject jsonObj = new JSONObject().put("email", "brian@domain.com");
+        given().accept(ContentType.JSON)
+                .header("Content-Type", "application/json;charset=UTF-8")
+                .body(jsonObj.toString())
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_CONFLICT)
+                .when()
+                .post(USER_API);
+    }
 }
