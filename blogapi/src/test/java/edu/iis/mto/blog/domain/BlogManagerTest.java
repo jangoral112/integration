@@ -2,8 +2,10 @@ package edu.iis.mto.blog.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
+import edu.iis.mto.blog.domain.errors.DomainError;
 import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.LikePost;
 import edu.iis.mto.blog.domain.repository.BlogPostRepository;
@@ -92,5 +94,23 @@ class BlogManagerTest {
         LikePost likePost = likePostCaptor.getValue();
         assertThat(likePost.getPost().getId(), equalTo(sampleBlogPost.getId()));
         assertThat(likePost.getUser().getId(), equalTo(confirmedUserId));
+    }
+
+    @Test
+    void shouldThrowDomainErrorWhenAddingLikeToPostByUserWithStatusNEW() {
+        User newUser = new User();
+        Long newUserId = 1L;
+        newUser.setId(newUserId);
+        newUser.setAccountStatus(AccountStatus.NEW);
+
+        when(userRepository.findById(newUserId)).thenReturn(Optional.of(newUser));
+        try {
+
+            blogService.addLikeToPost(newUserId, sampleBlogPost.getId());
+
+            fail("Should throw DomainError");
+        } catch (DomainError e) {
+            assertThat(e.getMessage(), equalTo(DomainError.USER_NOT_CONFIRMED));
+        }
     }
 }
