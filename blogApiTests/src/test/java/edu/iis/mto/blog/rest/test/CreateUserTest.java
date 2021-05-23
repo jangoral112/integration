@@ -39,4 +39,16 @@ class CreateUserTest extends FunctionalTests {
                 .when()
                 .post(USER_API);
     }
+
+    @Test
+    void getUserReturnsNotFoundWhenUserWithGivenIdIsNotPresent() {
+        given().accept(ContentType.JSON)
+                .pathParam("id", -1)
+                .expect()
+                .log()
+                .all()
+                .statusCode(HttpStatus.SC_NOT_FOUND)
+                .when()
+                .get(USER_API + "/{id}");
+    }
 }
