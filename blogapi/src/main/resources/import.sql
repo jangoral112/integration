@@ -5,4 +5,8 @@ insert into user (id, account_status, email, first_name) values (2, 'NEW', 'bria
 insert into user (id, account_status, email, first_name, last_name) values (3, 'CONFIRMED', 'owner@domain.com', 'Paul', 'BlogPostOwner')
 insert into user (id, account_status, email, first_name, last_name) values (4, 'CONFIRMED', 'like@domain.com', 'Anna', 'LikedBlogPost')
 insert into blog_post (id, entry, user_id) values (1, 'sample entry', 3)
+insert into blog_post (id, entry, user_id) values (2, 'sample entry 2', 3)
 insert into like_post (id, post_id, user_id) values (1, 1, 4)
+
+insert into user (id, account_status, email, first_name, last_name) values (5, 'REMOVED', 'removed@domain.com', 'Mark', 'RemovedOwner')
+insert into blog_post (id, entry, user_id) values (3, 'post by removed owner', 5)
